@@ -4,11 +4,11 @@ const prisma = new PrismaClient()
 
 export const addProduct = async (req,res) => {
     try {
-        const {name,description,imageUrl,categoryId} = req.body
+        const {name,description,imageUrl,categoryId, price} = req.body
         
-        if (!name || !categoryId) {
+        if (!name || !categoryId, !price) {
             res.status(400).json({
-                message: 'Product name and Category are required'
+                message: 'Product name, Category, and price are required'
             })
         } else {
             const checkProduct = await prisma.product.findMany({
@@ -22,17 +22,23 @@ export const addProduct = async (req,res) => {
                     message: 'Product already exist'
                 })
             } else {
-                await prisma.product.create({
-                    data: {
-                        name,
-                        description,
-                        imageUrl,
-                        categoryId: parseInt(categoryId)
-                    }
-                })
-                res.status(201).json({
-                    message: 'Product has been successfully created'
-                })
+                if(req.user[0].role !== 'ADMIN') {
+                    res.status(401).json({
+                        message: 'User unauthorized'
+                    })
+                } else {
+                    await prisma.product.create({
+                        data: {
+                            name,
+                            description,
+                            imageUrl,
+                            categoryId: parseInt(categoryId)
+                        }
+                    })
+                    res.status(201).json({
+                        message: 'Product has been successfully created'
+                    })
+                }
             }
         }
     } catch (error) {

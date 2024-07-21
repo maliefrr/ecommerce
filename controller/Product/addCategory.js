@@ -16,14 +16,20 @@ export const addCategory = async (req,res) => {
                 }
             })
             if(checkCategory.length < 0) {
-                await prisma.category.create({
-                    data: {
-                        name
-                    }
-                })
-                res.status(201).json({
-                    message: 'category successfully added'
-                })
+                if(req.user[0].role !== 'ADMIN') {
+                    res.status(401).json({
+                        message: 'User unauthorized'
+                    })
+                } else {
+                    await prisma.category.create({
+                        data: {
+                            name
+                        }
+                    })
+                    res.status(201).json({
+                        message: 'category successfully added'
+                    })
+                }
             } else {
                 res.status(400).json({
                     message: 'Category already exist'
