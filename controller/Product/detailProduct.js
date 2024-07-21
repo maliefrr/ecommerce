@@ -4,13 +4,16 @@ const prisma = new PrismaClient()
 
 export const detailProduct = async (req,res) => {
     try {
-        const data = await prisma.product.findMany({
+        const data = await prisma.product.findUnique({
             where: {
-                id: req.params.id
+                id: parseInt(req.params.id)
             }
         })
-        if(data.length < 1) {
-            res.status(204)
+        console.log(data)
+        if(!data) {
+            res.status(404).json({
+                message: "Data not found"
+            })
         } else {
             res.status(200).json({
                 message: 'Successfully get the data',

@@ -11,13 +11,13 @@ export const addProduct = async (req,res) => {
                 message: 'Product name, Category, and price are required'
             })
         } else {
-            const checkProduct = await prisma.product.findMany({
+            const checkProduct = await prisma.product.findUnique({
                 where: {
                     name,
                     categoryId: parseInt(categoryId)
                 }
             })
-            if(checkProduct.length > 0) {
+            if(checkProduct) {
                 res.status(400).json({
                     message: 'Product already exist'
                 })
@@ -32,7 +32,8 @@ export const addProduct = async (req,res) => {
                             name,
                             description,
                             imageUrl,
-                            categoryId: parseInt(categoryId)
+                            categoryId: parseInt(categoryId),
+                            price: parseInt(price)
                         }
                     })
                     res.status(201).json({

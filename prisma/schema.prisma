@@ -55,15 +55,22 @@ model Sale {
 }
 
 model PaymentConfirmation {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  saleId    Int
-  sale      Sale      @relation(fields: [saleId], references: [id])
-  amount    Float
-  confirmedAt DateTime @default(now())
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  saleId      Int
+  sale        Sale      @relation(fields: [saleId], references: [id])
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+  confirmedAt DateTime?
 
   @@map("payment_confirmations")
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
 }
 
 enum Role {

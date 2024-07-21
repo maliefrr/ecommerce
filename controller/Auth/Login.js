@@ -11,17 +11,17 @@ export const Login = async (req,res) => {
             message: 'username and password are required'
         })
     }
-    const checkUser = await prisma.user.findMany({
+    const checkUser = await prisma.user.findUnique({
         where: {
             username
         }
     })
-    if(checkUser.length > 0) {
-        const isAuthorized = await bcrypt.compare(password,checkUser[0].password)
+    if(checkUser) {
+        const isAuthorized = await bcrypt.compare(password,checkUser.password)
         if(isAuthorized) {
             res.status(200).json({
                 message: 'Login Success',
-                token: getToken(checkUser[0].id)
+                token: getToken(checkUser.id)
             })
         } else {
             res.status(401).json({
