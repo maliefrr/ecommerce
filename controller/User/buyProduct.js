@@ -4,9 +4,9 @@ const prisma = new PrismaClient()
 
 export const buyProduct = async (req,res) => {
     try {
-        const { userId, productId, quantity, amount } = req.body;
+        const { productId, quantity} = req.body;
         const user = await prisma.user.findUnique({
-            where: { id: userId }
+            where: { id: parseInt(req.user[0].id) }
           });
       
           if (!user) {
@@ -14,7 +14,7 @@ export const buyProduct = async (req,res) => {
           }
       
           const product = await prisma.product.findUnique({
-            where: { id: productId }
+            where: { id: parseInt(productId) }
           });
       
           if (!product) {
@@ -23,17 +23,17 @@ export const buyProduct = async (req,res) => {
 
           const sale = await prisma.sale.create({
             data: {
-              productId,
-              quantity,
-              total: amount,
+              productId: parseInt(productId),
+              quantity: parseInt(quantity),
+              total: parseInt(quantity) * parseInt(product.price) ,
             },
           });
 
           const paymentConfirmation = await prisma.paymentConfirmation.create({
             data: {
-              userId,
-              saleId: sale.id,
-              amount,
+              userId : parseInt(req.user[0].id),
+              saleId: parseInt(sale.id),
+              amount: parseInt(quantity) * parseInt(product.price),
               status: "PENDING"
             },
           });
@@ -43,7 +43,7 @@ export const buyProduct = async (req,res) => {
             sale,
             paymentConfirmation,
           });
-          
+
         } catch (error) {
           console.error(error);
           res.status(500).json({ error: "Internal server error" });
